@@ -1,21 +1,19 @@
-import cv2
-import numpy as np
-from doctr.io import DocumentFile
-from doctr.models import ocr_predictor
-from PIL import Image
-import easyocr
-from pix2tex.cli import LatexOCR
-import os
+# import cv2
+# import numpy as np
+# from doctr.io import DocumentFile
+# from doctr.models import ocr_predictor
+# from PIL import Image
+# import easyocr
+# from pix2tex.cli import LatexOCR
+# import os
 from src.PaperProcessor import MathPaperProcessor
 
 processor = MathPaperProcessor()
 
 if __name__ == '__main__':
     try:
-        # Process a single paper
         results = processor.process_paper('data/first.jpg')
         
-        # Print results
         print("\nProcessed Results:")
         print("\nEquations found:")
         for eq in results['equations']:
