@@ -101,25 +101,42 @@ class MathPaperProcessor:
             for region in equation_regions:
                 geometry = region['geometry']
                 h, w = image.shape[:2]
-                y1 = int(geometry[0][1] * h)
-                x1 = int(geometry[0][0] * w)
-                y2 = int(geometry[1][1] * h)
-                x2 = int(geometry[1][0] * w)
                 
-                y1, y2 = max(0, y1), min(h, y2)
-                x1, x2 = max(0, x1), min(w, x2)
+                # Calculate coordinates
+                y1 = max(0, int(geometry[0][1] * h))
+                x1 = max(0, int(geometry[0][0] * w))
+                y2 = min(h, int(geometry[1][1] * h))
+                x2 = min(w, int(geometry[1][0] * w))
                 
-                if y2 > y1 and x2 > x1:
-                    equation_img = image[y1:y2, x1:x2]
-                    if equation_img.size > 0:
-                        pil_equation = self.numpy_to_pil(equation_img)
+                # Verify dimensions are valid
+                if y2 <= y1 or x2 <= x1:
+                    continue
+                    
+                # Add minimum size check
+                if (y2 - y1) < 10 or (x2 - x1) < 10:
+                    continue
+                
+                equation_img = image[y1:y2, x1:x2]
+                
+                # Verify image is not empty
+                if equation_img.size == 0:
+                    continue
+                    
+                try:
+                    pil_equation = self.numpy_to_pil(equation_img)
+                    # Add size verification before processing
+                    if pil_equation.size[0] > 0 and pil_equation.size[1] > 0:
                         latex = self.latex_reader(pil_equation)
                         latex_expressions.append({
                             'latex': latex,
                             'text': region['text']
                         })
-                
+                except Exception as e:
+                    print(f"Skipping region due to error: {str(e)}")
+                    continue
+                    
             return latex_expressions
+            
         except Exception as e:
             raise Exception(f"Error processing math expressions: {str(e)}")
 
